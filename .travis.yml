@@ -1,0 +1,6 @@
+language: java
+
+# Cache maven repository to speed up build
+cache:
+  directories:
+  - $HOME/.m2
