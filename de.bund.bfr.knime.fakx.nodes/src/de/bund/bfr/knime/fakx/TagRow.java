@@ -4,7 +4,8 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.UUID;
 
-import org.foodauthent.model.SOP;
+import org.foodauthent.model.Tag;
+import org.foodauthent.model.Tag.TypeEnum;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -14,33 +15,31 @@ import org.knime.core.data.RowKey;
 import org.knime.core.data.def.StringCell;
 
 /**
- * Row for FoodAuthent SOP.
+ * Row for FoodAuthent Tag.
  * 
  * Has the columns:
  * <ul>
  * <li>fa-id: UUID
- * <li>file-id: UUID
  * <li>name: String
  * <li>description: String
- * <li>product: String
+ * <li>type: org.foodauthent.model.Tag.TypeEnum
  * </ul>
  * 
  * @author Miguel de Alba
  */
-public class SopRow implements DataRow {
-	
+public class TagRow implements DataRow {
+
 	private DataCell[] cell;
 	private final RowKey rowKey;
-
-	public SopRow(SOP sop) {
+	
+	public TagRow(Tag tag) {
 		
-		cell = new DataCell[5];
-		cell[0] = new StringCell(sop.getFaId().toString());
-		cell[1] = new StringCell(sop.getFileId().toString());
-		cell[2] = new StringCell(sop.getName());
-		cell[3] = new StringCell(sop.getDescription());
-		cell[4] = new StringCell(sop.getProductId().toString());
-
+		cell = new DataCell[4];
+		cell[0] = new StringCell(tag.getFaId().toString());
+		cell[1] = new StringCell(tag.getName());
+		cell[2] = new StringCell(tag.getDescription());
+		cell[3] = new StringCell(tag.getType().toString());
+		
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
 	
@@ -49,20 +48,16 @@ public class SopRow implements DataRow {
 		return UUID.fromString(((StringCell)cell[0]).getStringValue());
 	}
 	
-	public UUID getFileId() {
-		return UUID.fromString(((StringCell)cell[1]).getStringValue());
-	}
-	
 	public String getName() {
-		return ((StringCell)cell[2]).getStringValue();
+		return ((StringCell)cell[1]).getStringValue();
 	}
 	
 	public String getDescription() {
-		return ((StringCell)cell[3]).getStringValue();
+		return ((StringCell)cell[2]).getStringValue();
 	}
 	
-	public UUID getProductId() {
-		return UUID.fromString(((StringCell)cell[4]).getStringValue());
+	public TypeEnum getType() {
+		return TypeEnum.valueOf(((StringCell)cell[3]).getStringValue());
 	}
 	
 	// DataRow methods
@@ -88,11 +83,11 @@ public class SopRow implements DataRow {
 	
 	public static DataTableSpec createSpec() {
 		
-		DataColumnSpec[] specs = new DataColumnSpec[5];
+		DataColumnSpec[] specs = new DataColumnSpec[4];
 		specs[0] = new DataColumnSpecCreator("fa-id", StringCell.TYPE).createSpec();
-		specs[1] = new DataColumnSpecCreator("gtin", StringCell.TYPE).createSpec();
-		specs[2] = new DataColumnSpecCreator("brand", StringCell.TYPE).createSpec();
-		specs[3] = new DataColumnSpecCreator("gpc", StringCell.TYPE).createSpec();
+		specs[1] = new DataColumnSpecCreator("name", StringCell.TYPE).createSpec();
+		specs[2] = new DataColumnSpecCreator("description", StringCell.TYPE).createSpec();
+		specs[3] = new DataColumnSpecCreator("type", StringCell.TYPE).createSpec();
 		
 		return new DataTableSpec(specs);
 	}

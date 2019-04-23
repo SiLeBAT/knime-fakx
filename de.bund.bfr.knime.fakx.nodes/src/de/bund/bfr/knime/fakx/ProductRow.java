@@ -9,6 +9,7 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowKey;
 import org.knime.core.data.def.StringCell;
 
@@ -78,7 +79,7 @@ public class ProductRow implements DataRow {
 		return cell[index];
 	}
 	
-	public static DataColumnSpec[] createSpec() {
+	public static DataTableSpec createSpec() {
 		
 		DataColumnSpec[] specs = new DataColumnSpec[4];
 		specs[0] = new DataColumnSpecCreator("fa-id", StringCell.TYPE).createSpec();
@@ -86,6 +87,6 @@ public class ProductRow implements DataRow {
 		specs[2] = new DataColumnSpecCreator("brand", StringCell.TYPE).createSpec();
 		specs[3] = new DataColumnSpecCreator("gpc", StringCell.TYPE).createSpec();
 		
-		return specs;
+		return new DataTableSpec(specs);
 	}
 }
