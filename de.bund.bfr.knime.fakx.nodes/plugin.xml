@@ -4,12 +4,29 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-      	deprecated="false"
-      	factory-class="de.bund.bfr.knime.fakx.nodes.reader.ReaderNodeFactory">
+            category-path="fAuthent"
+            deprecated="false"
+            factory-class="de.bund.bfr.knime.fakx.nodes.reader.ReaderNodeFactory">
       </node>
       <node
-      	deprecated="false"
-      	factory-class="de.bund.bfr.knime.fakx.nodes.writer.WriterNodeFactory">
+            category-path="fAuthent"
+            deprecated="false"
+            factory-class="de.bund.bfr.knime.fakx.nodes.writer.WriterNodeFactory">
       </node>
    </extension>
+   
+	<extension point="org.knime.workbench.repository.categories">
+		<category icon="icons/fAuthent48.png" level-id="fAuthent" name="FoodAuthent" path="/" />
+	</extension>
+	
+	<!-- Splash extension to be shown when launching KNIME -->
+	<extension point="org.knime.product.splashExtension">
+		<splashExtension
+			icon="icons/fAuthent48.png"
+			icon24="icons/fAuthent24.png"
+			icon32="icons/fAuthent32.png"
+			id="de.bund.bfr.knime.fakx.splashExtension"
+			tooltip="FoodAuthent">
+		</splashExtension>
+	</extension>
 </plugin>
