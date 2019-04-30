@@ -9,11 +9,6 @@ import java.nio.file.Path;
 
 import org.foodauthent.fakx.Archive;
 import org.foodauthent.fakx.FAKX;
-//import org.foodauthent.fakx.FAKX;
-//import org.foodauthent.model.FileMetadata;
-//import org.foodauthent.model.Product;
-//import org.foodauthent.model.SOP;
-//import org.foodauthent.model.Tag;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;

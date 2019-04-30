@@ -13,10 +13,10 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.datatype.jackson-datatype-jdk8,
  com.fasterxml.jackson.datatype.jackson-datatype-jsr310,
  com.fasterxml.jackson.core.jackson-databind,
- org.knime.json
+ org.knime.json,
+ org.foodauthent.fakx;bundle-version="1.0.0",
+ org.foodauthent.model;bundle-version="1.0.0"
 Export-Package: de.bund.bfr.knime.fakx,
  de.bund.bfr.knime.fakx.nodes.reader,
  de.bund.bfr.knime.fakx.nodes.writer
-Import-Package: org.foodauthent.fakx,
- org.foodauthent.model
 
