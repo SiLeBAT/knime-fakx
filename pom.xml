@@ -24,15 +24,14 @@
 			<layout>p2</layout>
 		</repository>
 		<repository>
-			<id>foodauthent-dependencies</id>
-			<url>http://repository.foodauthent.net/p2/foodauthent-dependencies-1.0.1-SNAPSHOT/</url>
+			<id>foodauthent-maven</id>
+			<url>http://repository.foodauthent.net/p2/p2-maven-1.0.1-SNAPSHOT</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>
 
 	<modules>
 		<!-- Plugins -->
-		<module>org.knime.example.node</module>
 		<module>de.bund.bfr.knime.fakx.nodes</module>
 		<module>foodauthent-fakx</module>
 		<module>foodauthent-model</module>

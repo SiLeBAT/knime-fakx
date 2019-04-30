@@ -9,9 +9,8 @@ Export-Package: org.foodauthent.model,
  org.foodauthent.model.json,
  org.foodauthent.model.json.mixin
 Bundle-ClassPath: .
-Import-Package: com.fasterxml.jackson.annotation;version="2.8.10",
- com.fasterxml.jackson.core;version="2.8.10",
- com.fasterxml.jackson.databind;version="2.8.10",
- com.fasterxml.jackson.databind.annotation;version="2.8.10",
- com.fasterxml.jackson.datatype.jdk8;version="2.8.10",
- com.fasterxml.jackson.datatype.jsr310;version="2.8.10"
+Require-Bundle: com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.fasterxml.jackson.core.jackson-databind,
+ com.fasterxml.jackson.datatype.jackson-datatype-jdk8,
+ com.fasterxml.jackson.datatype.jackson-datatype-jsr310

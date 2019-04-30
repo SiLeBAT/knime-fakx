@@ -6,14 +6,15 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.foodauthent.fakx.Archive;
 import org.foodauthent.fakx.FAKX;
-import org.foodauthent.model.FileMetadata;
-import org.foodauthent.model.Product;
-import org.foodauthent.model.SOP;
-import org.foodauthent.model.Tag;
+//import org.foodauthent.fakx.FAKX;
+//import org.foodauthent.model.FileMetadata;
+//import org.foodauthent.model.Product;
+//import org.foodauthent.model.SOP;
+//import org.foodauthent.model.Tag;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -26,10 +27,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.util.FileUtil;
 
-import de.bund.bfr.knime.fakx.MetadataRow;
-import de.bund.bfr.knime.fakx.ProductRow;
-import de.bund.bfr.knime.fakx.SopRow;
-import de.bund.bfr.knime.fakx.TagRow;
+import de.bund.bfr.knime.fakx.JSONRow;
 
 public class ReaderNodeModel extends NodeModel {
 
@@ -38,7 +36,7 @@ public class ReaderNodeModel extends NodeModel {
 
 	private final SettingsModelString m_path = new SettingsModelString(ReaderNodeModel.CFGKEY_FILE,
 			ReaderNodeModel.DEFAULT_FILE);
-
+	
 	ReaderNodeModel() {
 		super(0, 1);
 	}
@@ -78,6 +76,11 @@ public class ReaderNodeModel extends NodeModel {
 	}
 
 	@Override
+	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
+		return new DataTableSpec[] { null };
+	}
+
+	@Override
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
 		URL url = FileUtil.toURL(m_path.getStringValue());
@@ -98,43 +101,10 @@ public class ReaderNodeModel extends NodeModel {
 			}
 		}
 
-		BufferedDataTable productTable = createProductTable(exec, archive.getProduct());
-		BufferedDataTable sopTable = createSopTable(exec, archive.getSOP());
-		BufferedDataTable metadataTable = createMetadataTable(exec, archive.getMetadata());
-		BufferedDataTable tagTable = createTagTable(exec, archive.getTag());
-
-		return new BufferedDataTable[] { productTable, sopTable, metadataTable, tagTable };
-	}
-	
-	private static BufferedDataTable createProductTable(ExecutionContext exec, List<Product> products) {
-		BufferedDataContainer container = exec.createDataContainer(ProductRow.createSpec());
-		products.stream().map(ProductRow::new).forEach(container::addRowToTable);
+		BufferedDataContainer container = exec.createDataContainer(JSONRow.createSpec());
+		container.addRowToTable(new JSONRow(archive));
 		container.close();
 		
-		return container.getTable();
-	}
-	
-	private static BufferedDataTable createSopTable(ExecutionContext exec, List<SOP> sops) {
-		BufferedDataContainer container = exec.createDataContainer(SopRow.createSpec());
-		sops.stream().map(SopRow::new).forEach(container::addRowToTable);
-		container.close();
-		
-		return container.getTable();
-	}
-	
-	private static BufferedDataTable createMetadataTable(ExecutionContext exec, List<FileMetadata> metadata) {
-		BufferedDataContainer container = exec.createDataContainer(MetadataRow.createSpec());
-		metadata.stream().map(MetadataRow::new).forEach(container::addRowToTable);
-		container.close();
-		
-		return container.getTable();
-	}
-	
-	private static BufferedDataTable createTagTable(ExecutionContext exec, List<Tag> tag) {
-		BufferedDataContainer container = exec.createDataContainer(TagRow.createSpec());
-		tag.stream().map(TagRow::new).forEach(container::addRowToTable);
-		container.close();
-		
-		return container.getTable();
+		return new BufferedDataTable[] { container.getTable() };
 	}
 }

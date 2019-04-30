@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<knimeNode icon="./writer.png" type=" Sink"
+	xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://knime.org/node/v2.10 http://knime.org/node/v2.10.xsd">
+	<name>FAKX writer</name>
+
+	<shortDescription>FAKX Writer</shortDescription>
+
+	<fullDescription>
+		<intro>Insert long description here...</intro>
+		<option name="short name of first option (like in the dialog)">description of first option</option>
+		<option name="short name of second option (like in the dialog)">description of second option</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Data">Data</inPort>
+	</ports>
+</knimeNode>
