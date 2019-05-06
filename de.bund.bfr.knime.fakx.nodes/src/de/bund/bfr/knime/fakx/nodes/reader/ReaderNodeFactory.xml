@@ -10,12 +10,24 @@
 	</shortDescription>
 
 	<fullDescription>
-		<intro>Insert long description here...</intro>
-		<option name="short name of first option (like in the dialog)">description of first option</option>
-		<option name="short name of second option (like in the dialog)">description of second option</option>
+		FAKX Reader
 	</fullDescription>
 
 	<ports>
-		<outPort index="0" name="Data">Data</outPort>
+		<outPort index="0" name="Data">
+			FAKX metadata table with a single row with multiple columns with JSON
+			arrays.
+			<ul>
+				<li>Product</li>
+				<li>Sop</li>
+				<li>Metadata</li>
+				<li>Tag</li>
+				<li>Model</li>
+				<li>Prediction</li>
+				<li>Workflow</li>
+				<li>Fingerprint</li>
+				<li>FingerprintSet</li>
+			</ul>
+		</outPort>
 	</ports>
 </knimeNode>
