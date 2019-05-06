@@ -4,3 +4,10 @@ language: java
 cache:
   directories:
   - $HOME/.m2
+  
+# Deploy build
+deploy:
+-  provider: script
+   skip_cleanup: true # to upload artifacts created during the build
+   script: bash bintray.sh
+   on: release
