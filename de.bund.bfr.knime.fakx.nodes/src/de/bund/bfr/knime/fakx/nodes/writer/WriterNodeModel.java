@@ -25,96 +25,97 @@ import de.bund.bfr.knime.fakx.JSONRow;
 
 public class WriterNodeModel extends NodeModel {
 
-    static final String CFGKEY_FILE = "filename";
-    static final String DEFAULT_FILE = "";
+	static final String CFGKEY_FILE = "filename";
+	static final String DEFAULT_FILE = "";
 
-    private final SettingsModelString m_path = new SettingsModelString(WriterNodeModel.CFGKEY_FILE, WriterNodeModel.DEFAULT_FILE);
+	private final SettingsModelString m_path = new SettingsModelString(WriterNodeModel.CFGKEY_FILE,
+			WriterNodeModel.DEFAULT_FILE);
 
-    WriterNodeModel() {
-        super(1, 0);
-    }
+	WriterNodeModel() {
+		super(1, 0);
+	}
 
-    @Override
-    protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-        // No internal data
-    }
+	@Override
+	protected void loadInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// No internal data
+	}
 
-    @Override
-    protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
-      throws IOException, CanceledExecutionException {
-        // No internal data
-    }
+	@Override
+	protected void saveInternals(File nodeInternDir, ExecutionMonitor exec)
+			throws IOException, CanceledExecutionException {
+		// No internal data
+	}
 
-    @Override
-    protected void saveSettingsTo(NodeSettingsWO settings) {
-        m_path.saveSettingsTo(settings);
-    }
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings) {
+		m_path.saveSettingsTo(settings);
+	}
 
-    @Override
-    protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
-        m_path.validateSettings(settings);
-    }
+	@Override
+	protected void validateSettings(NodeSettingsRO settings) throws InvalidSettingsException {
+		m_path.validateSettings(settings);
+	}
 
-    @Override
-    protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
-        m_path.loadSettingsFrom(settings);
-    }
+	@Override
+	protected void loadValidatedSettingsFrom(NodeSettingsRO settings) throws InvalidSettingsException {
+		m_path.loadSettingsFrom(settings);
+	}
 
-    @Override
-    protected void reset() {
-        // No internal data to reset
-        // No models build during execute to reset
-    }
+	@Override
+	protected void reset() {
+		// No internal data to reset
+		// No models build during execute to reset
+	}
 
-    @Override
-    protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
-        return new DataTableSpec[] { null };
-    }
+	@Override
+	protected DataTableSpec[] configure(DataTableSpec[] inSpecs) throws InvalidSettingsException {
+		return new DataTableSpec[] {};
+	}
 
-    @Override
-    protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
+	@Override
+	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
-        BufferedDataTable in = (BufferedDataTable) inData[0];
-        JSONRow row = (JSONRow) in.iterator().next();
-        
-        // Build Archive using convenience getters
-        Archive.Builder builder = new Archive.Builder();
-        builder.product(row.getProducts());
-        builder.sop(row.getSOP());
-        builder.metadata(row.getMetadata());
-        builder.tag(row.getTag());
-        builder.model(row.getModel());
-        builder.prediction(row.getPrediction());
-        builder.workflow(row.getWorkflow());
-        builder.fingerprint(row.getFingerprint());
-        builder.fingerprintset(row.getFingerprintSet());
-        Archive archive = builder.build();
-        
-        URL url = FileUtil.toURL(m_path.getStringValue());
-        Path localPath  = FileUtil.resolveToPath(url);
+		BufferedDataTable in = (BufferedDataTable) inData[0];
+		JSONRow row = (JSONRow) in.iterator().next();
 
-        // If path is not local write to URL
-        if (localPath != null) {
-            Files.deleteIfExists(localPath);
-            FAKX.write(archive, localPath);
-        } else {
+		// Build Archive using convenience getters
+		Archive.Builder builder = new Archive.Builder();
+		builder.product(row.getProducts());
+		builder.sop(row.getSOP());
+		builder.metadata(row.getMetadata());
+		builder.tag(row.getTag());
+		builder.model(row.getModel());
+		builder.prediction(row.getPrediction());
+		builder.workflow(row.getWorkflow());
+		builder.fingerprint(row.getFingerprint());
+		builder.fingerprintset(row.getFingerprintSet());
+		Archive archive = builder.build();
 
-            // Creates archive in temporary archive file
-            Path temporaryFile = Files.createTempFile("model", "fakx");
+		URL url = FileUtil.toURL(m_path.getStringValue());
+		Path localPath = FileUtil.resolveToPath(url);
 
-            // Write archive
-            FAKX.write(archive, temporaryFile);
+		// If path is not local write to URL
+		if (localPath != null) {
+			Files.deleteIfExists(localPath);
+			FAKX.write(archive, localPath);
+		} else {
 
-            // Copy temporary file to output stream
-            try (OutputStream os = FileUtil.openOutputConnection(url, "PUT").getOutputStream()) {
-            	Files.copy(temporaryFile, os);
-            }
+			// Creates archive in temporary archive file
+			Path temporaryFile = Files.createTempFile("model", "fakx");
 
-            // Deletes temporary file
-            Files.delete(localPath);
-        }
+			// Write archive
+			FAKX.write(archive, temporaryFile);
 
-        return new BufferedDataTable[] {};
-    }
+			// Copy temporary file to output stream
+			try (OutputStream os = FileUtil.openOutputConnection(url, "PUT").getOutputStream()) {
+				Files.copy(temporaryFile, os);
+			}
+
+			// Deletes temporary file
+			Files.delete(localPath);
+		}
+
+		return new BufferedDataTable[] {};
+	}
 }
