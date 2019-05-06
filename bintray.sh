@@ -1,6 +1,6 @@
 API="https://api.bintray.com"
 PROPS=";bt_package=update;bt_version=version;publish=1;override=1"
-FOLDER="$TRAVIS_BUILD_DIR/releng/de.bund.bfr.knime.fakx.update/target/repository"
+FOLDER="$TRAVIS_BUILD_DIR/de.bund.bfr.knime.fakx.update/target/repository"
 
 SUBJECT=fauthent
 REPO=knime
