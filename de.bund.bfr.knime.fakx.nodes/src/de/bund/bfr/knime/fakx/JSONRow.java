@@ -62,6 +62,17 @@ public class JSONRow implements DataRow {
 	
 	private static final ObjectMapper MAPPER;
 	
+	// Type references
+	private static final TypeReference<?> productType = new TypeReference<List<Product>>() {};
+	private static final TypeReference<?> sopType = new TypeReference<List<SOP>>() {};
+	private static final TypeReference<?> metadataType = new TypeReference<List<FileMetadata>>() {};
+	private static final TypeReference<?> tagType = new TypeReference<List<Tag>>() {};
+	private static final TypeReference<?> modelType = new TypeReference<List<Model>>() {};
+	private static final TypeReference<?> predictionType = new TypeReference<List<Prediction>>() {};
+	private static final TypeReference<?> workflowType = new TypeReference<List<Workflow>>() {};
+	private static final TypeReference<?> fingerprintType = new TypeReference<List<Fingerprint>>() {};
+	private static final TypeReference<?> fingerprintSetType = new TypeReference<List<FingerprintSet>>() {};
+	
     static {
         // ObjectMapper defaults to use a JsonFactory that automatically closes
         // the stream. When further entries are added to the archive the stream
@@ -103,39 +114,39 @@ public class JSONRow implements DataRow {
 	
 	// Convenience getters
 	public List<Product> getProducts() {
-		return getList(0, new TypeReference<List<Product>>() {});
+		return getList(0, productType);
 	}
 	
 	public List<SOP> getSOP() {
-		return getList(1, new TypeReference<List<SOP>>() {});
+		return getList(1, sopType);
 	}
 	
 	public List<FileMetadata> getMetadata() {
-		return getList(2, new TypeReference<List<FileMetadata>>() {});
+		return getList(2, metadataType);
 	}
 	
 	public List<Tag> getTag() {
-		return getList(3, new TypeReference<List<Tag>>() {});
+		return getList(3, tagType);
 	}
 
 	public List<Model> getModel() {
-		return getList(4, new TypeReference<List<Model>>() {});
+		return getList(4, modelType);
 	}
 
 	public List<Prediction> getPrediction() {
-		return getList(5, new TypeReference<List<Prediction>>() {});
+		return getList(5, predictionType);
 	}
 
 	public List<Workflow> getWorkflow() {
-		return getList(6, new TypeReference<List<Workflow>>() {});
+		return getList(6, workflowType);
 	}
 
 	public List<Fingerprint> getFingerprint() {
-		return getList(7, new TypeReference<List<Fingerprint>>() {});
+		return getList(7, fingerprintType);
 	}
 
 	public List<FingerprintSet> getFingerprintSet() {
-		return getList(8, new TypeReference<List<FingerprintSet>>() {});
+		return getList(8, fingerprintSetType);
 	}
 	
 	private <T extends FaModel> List<T> getList(int index, TypeReference<?> typeReference) {
