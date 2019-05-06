@@ -73,6 +73,14 @@ public class JSONRow implements DataRow {
 		rowKey = new RowKey(String.valueOf(new Random().nextInt()));
 	}
 	
+	public JSONRow(DataRow row) {
+		cell = new DataCell[9];
+		for (int i = 0; i < 9; i++) {
+			cell[i] = row.getCell(i);
+		}
+		rowKey = row.getKey();
+	}
+	
 	// Convenience getters
 	public List<Product> getProducts() {
 		return getList(0, new TypeReference<List<Product>>() {});

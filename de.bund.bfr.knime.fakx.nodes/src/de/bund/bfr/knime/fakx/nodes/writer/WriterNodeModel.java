@@ -77,7 +77,7 @@ public class WriterNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(BufferedDataTable[] inData, ExecutionContext exec) throws Exception {
 
 		BufferedDataTable in = (BufferedDataTable) inData[0];
-		JSONRow row = (JSONRow) in.iterator().next();
+		JSONRow row = new JSONRow(in.iterator().next());
 
 		// Build Archive using convenience getters
 		Archive.Builder builder = new Archive.Builder();
