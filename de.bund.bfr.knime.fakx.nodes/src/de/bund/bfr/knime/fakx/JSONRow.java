@@ -29,8 +29,13 @@ import org.knime.core.data.json.JSONCell;
 import org.knime.core.data.json.JSONCellFactory;
 import org.knime.json.util.JSONUtil;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Row for FoodAuthent data.
@@ -55,7 +60,22 @@ public class JSONRow implements DataRow {
 	private DataCell[] cell;
 	private final RowKey rowKey;
 	
-	private static final ObjectMapper MAPPER = new ObjectMapper();
+	private static final ObjectMapper MAPPER;
+	
+    static {
+        // ObjectMapper defaults to use a JsonFactory that automatically closes
+        // the stream. When further entries are added to the archive the stream
+        // is closed and fails. The AUTO_CLOSE_TARGET needs to be disabled.
+        JsonFactory jsonFactory = new JsonFactory();
+        jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+        jsonFactory.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+
+        MAPPER = new ObjectMapper(jsonFactory);
+        MAPPER.registerModule(new JavaTimeModule());
+
+        // Configure MAPPER to ignore properties not defined (FaModel#getTypeID)
+        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 	
 	public JSONRow(Archive archive) {
 		
