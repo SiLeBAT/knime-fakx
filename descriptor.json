@@ -12,9 +12,8 @@
     },
 
     "files": [
-      {
-        "includePattern": "de.bund.bfr.knime.fakx.update/target/.*\.jar^",
-        "excludePattern": "", "uploadPattern": "/$1"}
+      {"includePattern": "de.bund.bfr.knime.fakx.update/target/repository/content.jar", "excludePattern": "", "uploadPattern": "content.jar"},
+      {"includePattern": "de.bund.bfr.knime.fakx.update/target/repository/artifacts.jar", "excludePattern": "", "uploadPattern": "artifacts.jar"}
     ],
     "publish": true
 }
