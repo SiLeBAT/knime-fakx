@@ -1,7 +1,7 @@
 {
     "package": {
         "name": "update", // Bintray package name
-        "repo": "knime", // Bintray repository name
+        "repo": "test", // Bintray repository name
         "subject": "fauthent", // Bintray subject (user or organization)
         "vcs_url": "https://github.com/miguelalba/knime-fakx.git",
         "licenses": ["GPL-3.0"]
