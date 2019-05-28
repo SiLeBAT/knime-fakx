@@ -11,7 +11,9 @@ deploy:
    skip_cleanup: true # to upload artifacts created during the build
    script: bash bintray.sh
    on: release
--  provider: script
+-  provider: bintray
+   file: "descriptor.json"
+   user: $BINTRAY_USER
+   key: $BINTRAY_KEY
    skip_cleanup: true # to upload artifacts created during the build
-   script: bash bintray.sh
    on: test_release

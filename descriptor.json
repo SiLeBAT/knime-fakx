@@ -1,0 +1,21 @@
+{
+    "package": {
+        "name": "update", // Bintray package name
+        "repo": "fauthent", // Bintray repository name
+        "subject": "knime", // Bintray subject (user or organization)
+        "vcs_url": "https://github.com/miguelalba/knime-fakx.git",
+        "licenses": ["GPL-3.0"]
+    },
+
+    "version": {
+        "name": "version"
+    },
+
+    "files": [
+      {
+        "includePattern": "de.bund.bfr.knime.fakx.update/target/.*\.jar^",
+        "excludePattern": "", "uploadPattern": "/$1"}
+    ],
+    "publish": true
+}
+
