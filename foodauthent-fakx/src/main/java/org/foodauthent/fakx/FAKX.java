@@ -1,5 +1,28 @@
 package org.foodauthent.fakx;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import org.foodauthent.model.FaModel;
+import org.foodauthent.model.FileMetadata;
+import org.foodauthent.model.Fingerprint;
+import org.foodauthent.model.FingerprintSet;
+import org.foodauthent.model.Model;
+import org.foodauthent.model.Prediction;
+import org.foodauthent.model.Product;
+import org.foodauthent.model.SOP;
+import org.foodauthent.model.Tag;
+import org.foodauthent.model.Workflow;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -7,18 +30,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.foodauthent.model.*;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Reads/writes contents to FAKX file with structure:
@@ -105,8 +116,8 @@ public class FAKX {
             } else if (entryName.equals("fingerprintset.json")) {
                 builder.fingerprintset(MAPPER.readValue(zipStream, fingerprintsetListType));
             } else if (entryName.startsWith("files/")) {
-                Path tempFile = Files.createTempFile(null, null);
-                Files.copy(zipStream, tempFile);
+                Path tempFile = Files.createTempFile("modeldata", null);
+                Files.copy(zipStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
                 files.add(tempFile);
             }
         }

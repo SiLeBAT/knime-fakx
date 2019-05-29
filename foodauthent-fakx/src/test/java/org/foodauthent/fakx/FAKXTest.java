@@ -1,19 +1,34 @@
 package org.foodauthent.fakx;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.foodauthent.model.*;
+import org.foodauthent.model.FileMetadata;
+import org.foodauthent.model.Fingerprint;
+import org.foodauthent.model.FingerprintSet;
+import org.foodauthent.model.FingerprintType;
+import org.foodauthent.model.Model;
+import org.foodauthent.model.ModelType;
+import org.foodauthent.model.Prediction;
+import org.foodauthent.model.Product;
+import org.foodauthent.model.SOP;
+import org.foodauthent.model.Tag;
+import org.foodauthent.model.Workflow;
+import org.foodauthent.model.WorkflowIOTypes;
+import org.foodauthent.model.WorkflowParameter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class FAKXTest {
 
@@ -42,6 +57,10 @@ public class FAKXTest {
 	@After
 	public void tearDown() throws IOException {
 		Files.delete(testFile);
+		// Delete files linked in archive
+		for (Path p : archive.getFile()) {
+			Files.delete(p);
+		}
 	}
 
 	@Test
@@ -49,10 +68,10 @@ public class FAKXTest {
 
 		FAKX.write(archive, testFile);
 
-        try (InputStream stream = Files.newInputStream(testFile)) {
-        	archive = FAKX.read(stream);
+		try (InputStream stream = Files.newInputStream(testFile)) {
+			archive = FAKX.read(stream);
 		}
-		
+
 		// Small checks
 		assertEquals(1, archive.getSOP().size());
 		assertEquals(1, archive.getProduct().size());
@@ -92,7 +111,8 @@ public class FAKXTest {
 		ModelType modelType = ModelType.builder().setName(ModelType.NameEnum.KNIME_PYTHON).build();
 		return Model.builder().setFaId(UUID.randomUUID()).setName("name").setDescription("description")
 				.setAuthor("author").setDate(LocalDate.now()).setVersion(0).setType(modelType).setTags(tag)
-				.setFileId(UUID.randomUUID()).setFingerprintsetId(UUID.randomUUID()).setWorkflowId(UUID.randomUUID()).build();
+				.setFileId(UUID.randomUUID()).setFingerprintsetId(UUID.randomUUID()).setWorkflowId(UUID.randomUUID())
+				.build();
 	}
 
 	private static Prediction createPrediction() {
@@ -107,8 +127,7 @@ public class FAKXTest {
 				.setType(WorkflowParameter.TypeEnum.NUMBER).setValue("0").build();
 
 		// WorkflowIOTypes
-		FingerprintType fingerprintsetType = FingerprintType.builder().setName(FingerprintType.NameEnum.BRUKER)
-				.build();
+		FingerprintType fingerprintsetType = FingerprintType.builder().setName(FingerprintType.NameEnum.BRUKER).build();
 		ModelType modelType = ModelType.builder().setName(ModelType.NameEnum.KNIME_PYTHON).build();
 		WorkflowIOTypes ioTypes = WorkflowIOTypes.builder().setFingerprintType(fingerprintsetType)
 				.setModelType(modelType).build();
@@ -120,8 +139,7 @@ public class FAKXTest {
 
 	private static Fingerprint createFingerprint() {
 		FingerprintType type = FingerprintType.builder().setName(FingerprintType.NameEnum.BRUKER).build();
-		return Fingerprint.builder().setFaId(UUID.randomUUID()).setSampleId(UUID.randomUUID())
-				.setType(type)
+		return Fingerprint.builder().setFaId(UUID.randomUUID()).setSampleId(UUID.randomUUID()).setType(type)
 				.setFileId(UUID.randomUUID()).build();
 	}
 
