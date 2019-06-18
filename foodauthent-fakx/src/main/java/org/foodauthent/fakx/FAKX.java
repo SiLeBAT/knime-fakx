@@ -1,17 +1,17 @@
 package org.foodauthent.fakx;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
+import javax.xml.transform.TransformerException;
+
+import org.apache.commons.io.FileUtils;
 import org.foodauthent.model.FaModel;
 import org.foodauthent.model.FileMetadata;
 import org.foodauthent.model.Fingerprint;
@@ -22,6 +22,7 @@ import org.foodauthent.model.Product;
 import org.foodauthent.model.SOP;
 import org.foodauthent.model.Tag;
 import org.foodauthent.model.Workflow;
+import org.jdom2.JDOMException;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -30,6 +31,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import de.unirostock.sems.cbarchive.ArchiveEntry;
+import de.unirostock.sems.cbarchive.CombineArchive;
+import de.unirostock.sems.cbarchive.CombineArchiveException;
 
 /**
  * Reads/writes contents to FAKX file with structure:
@@ -48,111 +53,126 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  */
 public class FAKX {
 
-    private static ObjectMapper MAPPER;
+	private static ObjectMapper MAPPER;
 
-    static {
-        // ObjectMapper defaults to use a JsonFactory that automatically closes
-        // the stream. When further entries are added to the archive the stream
-        // is closed and fails. The AUTO_CLOSE_TARGET needs to be disabled.
-        JsonFactory jsonFactory = new JsonFactory();
-        jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-        jsonFactory.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+	static {
+		// ObjectMapper defaults to use a JsonFactory that automatically closes
+		// the stream. When further entries are added to the archive the stream
+		// is closed and fails. The AUTO_CLOSE_TARGET needs to be disabled.
+		JsonFactory jsonFactory = new JsonFactory();
+		jsonFactory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+		jsonFactory.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
 
-        MAPPER = new ObjectMapper(jsonFactory);
-        MAPPER.registerModule(new JavaTimeModule());
+		MAPPER = new ObjectMapper(jsonFactory);
+		MAPPER.registerModule(new JavaTimeModule());
 
-        // Configure MAPPER to ignore properties not defined (FaModel#getTypeID)
-        MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+		// Configure MAPPER to ignore properties not defined (FaModel#getTypeID)
+		MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
 
-    // Jackson type references
+	private static URI BIN_URI = URI.create("application/octet-stream");
+	private static URI JSON_URI = URI.create("http://purl.org/NET/mediatypes/application/json");
+
+	// Jackson type references
 	private static TypeReference<List<SOP>> sopListType = new TypeReference<List<SOP>>() {
-    };
-    private static TypeReference<List<Product>> productListType = new TypeReference<List<Product>>() {
-    };
-    private static TypeReference<List<FileMetadata>> metadataListType = new TypeReference<List<FileMetadata>>() {
-    };
-    private static TypeReference<List<Tag>> tagListType = new TypeReference<List<Tag>>() {
-    };
-    private static TypeReference<List<Model>> modelListType = new TypeReference<List<Model>>() {
-    };
-    private static TypeReference<List<Prediction>> predictionListType = new TypeReference<List<Prediction>>() {
-    };
-    private static TypeReference<List<Workflow>> workflowListType = new TypeReference<List<Workflow>>() {
-    };
-    private static TypeReference<List<Fingerprint>> fingerprintListType = new TypeReference<List<Fingerprint>>() {
-    };
-    private static TypeReference<List<FingerprintSet>> fingerprintsetListType = new TypeReference<List<FingerprintSet>>() {
-    };
+	};
+	private static TypeReference<List<Product>> productListType = new TypeReference<List<Product>>() {
+	};
+	private static TypeReference<List<FileMetadata>> metadataListType = new TypeReference<List<FileMetadata>>() {
+	};
+	private static TypeReference<List<Tag>> tagListType = new TypeReference<List<Tag>>() {
+	};
+	private static TypeReference<List<Model>> modelListType = new TypeReference<List<Model>>() {
+	};
+	private static TypeReference<List<Prediction>> predictionListType = new TypeReference<List<Prediction>>() {
+	};
+	private static TypeReference<List<Workflow>> workflowListType = new TypeReference<List<Workflow>>() {
+	};
+	private static TypeReference<List<Fingerprint>> fingerprintListType = new TypeReference<List<Fingerprint>>() {
+	};
+	private static TypeReference<List<FingerprintSet>> fingerprintsetListType = new TypeReference<List<FingerprintSet>>() {
+	};
 
-    public static Archive read(InputStream stream) throws IOException {
+	public static Archive read(Path file) throws IOException, JDOMException, ParseException, CombineArchiveException {
 
-        ZipInputStream zipStream = new ZipInputStream(stream);
-        Archive.Builder builder = new Archive.Builder();
+		Archive.Builder builder = new Archive.Builder();
 
-        List<Path> files = new ArrayList<>();
+		try (CombineArchive ca = new CombineArchive(file.toFile())) {
+			for (ArchiveEntry entry : ca.getEntriesWithFormat(JSON_URI)) {
+				final String entryName = entry.getFileName();
 
-        ZipEntry entry;
-        while ((entry = zipStream.getNextEntry()) != null) {
-            // process ZipEntry
-            String entryName = entry.getName();
+				// Read JSON
+				File tempFile = File.createTempFile("data", ".json");
+				entry.extractFile(tempFile);
+				String json = FileUtils.readFileToString(tempFile, "UTF-8");
+				tempFile.delete();
 
-            if (entryName.equals("sop.json")) {
-                builder.sop(MAPPER.readValue(zipStream, sopListType));
-            } else if (entryName.equals("product.json")) {
-                builder.product(MAPPER.readValue(zipStream, productListType));
-            } else if (entryName.equals("metadata.json")) {
-                builder.metadata(MAPPER.readValue(zipStream, metadataListType));
-            } else if (entryName.equals("tag.json")) {
-                builder.tag(MAPPER.readValue(zipStream, tagListType));
-            } else if (entryName.equals("model.json")) {
-                builder.model(MAPPER.readValue(zipStream, modelListType));
-            } else if (entryName.equals("prediction.json")) {
-                builder.prediction(MAPPER.readValue(zipStream, predictionListType));
-            } else if (entryName.equals("workflow.json")) {
-                builder.workflow(MAPPER.readValue(zipStream, workflowListType));
-            } else if (entryName.equals("fingerprint.json")) {
-                builder.fingerprint(MAPPER.readValue(zipStream, fingerprintListType));
-            } else if (entryName.equals("fingerprintset.json")) {
-                builder.fingerprintset(MAPPER.readValue(zipStream, fingerprintsetListType));
-            } else if (entryName.startsWith("files/")) {
-                Path tempFile = Files.createTempFile("modeldata", null);
-                Files.copy(zipStream, tempFile, StandardCopyOption.REPLACE_EXISTING);
-                files.add(tempFile);
-            }
-        }
-        builder.files(files);
+				if (entryName.equals("sop.json")) {
+					builder.sop(MAPPER.readValue(json, sopListType));
+				} else if (entryName.equals("product.json")) {
+					builder.product(MAPPER.readValue(json, productListType));
+				} else if (entryName.equals("metadata.json")) {
+					builder.metadata(MAPPER.readValue(json, metadataListType));
+				} else if (entryName.equals("tag.json")) {
+					builder.tag(MAPPER.readValue(json, tagListType));
+				} else if (entryName.equals("model.json")) {
+					builder.model(MAPPER.readValue(json, modelListType));
+				} else if (entryName.equals("prediction.json")) {
+					builder.prediction(MAPPER.readValue(json, predictionListType));
+				} else if (entryName.equals("workflow.json")) {
+					builder.workflow(MAPPER.readValue(json, workflowListType));
+				} else if (entryName.equals("fingerprint.json")) {
+					builder.fingerprint(MAPPER.readValue(json, fingerprintListType));
+				} else if (entryName.equals("fingerprintset.json")) {
+					builder.fingerprintset(MAPPER.readValue(json, fingerprintsetListType));
+				}
+			}
 
-        return builder.build();
-    }
+			List<Path> files = new ArrayList<>(ca.getNumEntriesWithFormat(BIN_URI));
+			for (ArchiveEntry entry : ca.getEntriesWithFormat(BIN_URI)) {
+				Path tempFile = Files.createTempFile("modeldata", null);
+				entry.extractFile(tempFile.toFile());
+				files.add(tempFile);
+			}
+			builder.files(files);
+		}
 
-    public static void write(Archive archive, Path file) throws IOException {
+		return builder.build();
+	}
 
-        try (OutputStream stream = Files.newOutputStream(file);
-             ZipOutputStream zipStream = new ZipOutputStream(stream)) {
+	public static void write(Archive archive, Path file)
+			throws IOException, JDOMException, ParseException, CombineArchiveException, TransformerException {
 
-            writeEntry(archive.getSOP(), zipStream, "sop.json");
-            writeEntry(archive.getProduct(), zipStream, "product.json");
-            writeEntry(archive.getMetadata(), zipStream, "metadata.json");
-            writeEntry(archive.getTag(), zipStream, "tag.json");
-            writeEntry(archive.getModel(), zipStream, "model.json");
-            writeEntry(archive.getPrediction(), zipStream, "prediction.json");
-            writeEntry(archive.getWorkflow(), zipStream, "workflow.json");
-            writeEntry(archive.getFingerprint(), zipStream, "fingerprint.json");
-            writeEntry(archive.getFingerprintSet(), zipStream, "fingerprintset.json");
+		try (CombineArchive ca = new CombineArchive(file.toFile())) {
+			writeEntry(archive.getSOP(), ca, "sop.json");
+			writeEntry(archive.getProduct(), ca, "product.json");
+			writeEntry(archive.getMetadata(), ca, "metadata.json");
+			writeEntry(archive.getTag(), ca, "tag.json");
+			writeEntry(archive.getModel(), ca, "model.json");
+			writeEntry(archive.getPrediction(), ca, "prediction.json");
+			writeEntry(archive.getWorkflow(), ca, "workflow.json");
+			writeEntry(archive.getFingerprint(), ca, "fingerprint.json");
+			writeEntry(archive.getFingerprintSet(), ca, "fingerprintset.json");
 
-            for (Path it : archive.getFile()) {
-                String entryName = "files/" + it.getFileName();
-                zipStream.putNextEntry(new ZipEntry(entryName));
-                Files.copy(it, zipStream);
-                zipStream.closeEntry();
-            }
-        }
-    }
+			for (Path it : archive.getFile()) {
+				ca.addEntry(it.toFile(), "files/" + it.getFileName(), BIN_URI);
+			}
 
-    private static void writeEntry(List<? extends FaModel> models, ZipOutputStream stream, String entryName) throws IOException {
-        stream.putNextEntry(new ZipEntry(entryName));
-        MAPPER.writeValue(stream, models);
-        stream.closeEntry();
-    }
+			ca.pack();
+		}
+	}
+
+	private static void writeEntry(List<? extends FaModel> models, CombineArchive archive, String entryName)
+			throws IOException {
+
+		// Create temporary JSON file
+		File tempFile = File.createTempFile("data", ".json");
+		MAPPER.writeValue(tempFile, models);
+
+		// Add JSON file
+		archive.addEntry(tempFile, entryName, JSON_URI);
+
+		// Delete temporary file
+		tempFile.delete();
+	}
 }

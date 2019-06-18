@@ -3,7 +3,6 @@ package org.foodauthent.fakx;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -67,10 +66,7 @@ public class FAKXTest {
 	public void test() throws Exception {
 
 		FAKX.write(archive, testFile);
-
-		try (InputStream stream = Files.newInputStream(testFile)) {
-			archive = FAKX.read(stream);
-		}
+		archive = FAKX.read(testFile);
 
 		// Small checks
 		assertEquals(1, archive.getSOP().size());

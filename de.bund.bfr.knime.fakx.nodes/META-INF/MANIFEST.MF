@@ -15,7 +15,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.fasterxml.jackson.core.jackson-databind,
  org.knime.json,
  org.foodauthent.fakx;bundle-version="1.0.0",
- org.foodauthent.model;bundle-version="1.0.0"
+ org.foodauthent.model;bundle-version="1.0.0",
+ de.unirostock.sems.CombineArchive;bundle-version="1.3.0",
+ org.jdom.2;bundle-version="2.0.6"
 Export-Package: de.bund.bfr.knime.fakx,
  de.bund.bfr.knime.fakx.nodes.reader,
  de.bund.bfr.knime.fakx.nodes.writer

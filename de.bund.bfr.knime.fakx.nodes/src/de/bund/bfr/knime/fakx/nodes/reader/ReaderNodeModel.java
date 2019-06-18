@@ -85,14 +85,20 @@ public class ReaderNodeModel extends NodeModel {
 
 		if (localPath != null) {
 			// Read archive from file
-			try (InputStream stream = Files.newInputStream(localPath)) {
-				archive = FAKX.read(stream);
-			}
+			archive = FAKX.read(localPath);
 		}
 		// if path is an external URL the archive is downloaded to a temporary file
 		else {
 			try (InputStream inStream = FileUtil.openStreamWithTimeout(url)) {
-				archive = FAKX.read(inStream);
+				// Download to temporary file
+				Path tempFile = Files.createTempFile("archive", null);
+				Files.copy(inStream, tempFile);
+				
+				// Read archive
+				archive = FAKX.read(tempFile);
+				
+				// Delete temporary file
+				Files.delete(tempFile);
 			}
 		}
 
